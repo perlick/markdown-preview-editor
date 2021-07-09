@@ -25,6 +25,14 @@ export class ClassicEditorProvider implements vscode.CustomTextEditorProvider {
 			enableScripts: true,
 		};
 		webviewPanel.webview.html = this.getHtmlForWebview(webviewPanel.webview, document);
+
+		webviewPanel.webview.onDidReceiveMessage(e => {
+			switch (e.type) {
+				case 'data.change':
+					console.log("vcode received message");
+					return;
+			}
+		});
 	}
 
     /**
@@ -47,8 +55,18 @@ export class ClassicEditorProvider implements vscode.CustomTextEditorProvider {
 
                 <script src="${scriptUri}"></script>
 				<script>
+					const vscode = acquireVsCodeApi();
+					
 					ClassicEditor
 						.create( document.querySelector( '#editor' ) )
+						.then( editor => {
+							editor.model.document.on( 'change:data', () => {
+								console.log( 'The data has changed!' );
+								vscode.postMessage({
+									type: 'data.change'
+								});
+							} );
+						} )
 						.catch( error => {
 							console.error( error );
 						} );
