@@ -24,13 +24,16 @@ export class ClassicEditorProvider implements vscode.CustomTextEditorProvider {
 		webviewPanel.webview.options = {
 			enableScripts: true,
 		};
-		webviewPanel.webview.html = this.getHtmlForWebview(webviewPanel.webview);
+		webviewPanel.webview.html = this.getHtmlForWebview(webviewPanel.webview, document);
 	}
 
     /**
 	 * Get the static html used for the editor webviews.
 	 */
-	private getHtmlForWebview(webview: vscode.Webview): string {
+	private getHtmlForWebview(webview: vscode.Webview, document: vscode.TextDocument): string {
+		const scriptUri = webview.asWebviewUri(vscode.Uri.joinPath(
+			this.context.extensionUri, 'node_modules', '@ckeditor', 'ckeditor5-build-classic', 'build',  'ckeditor.js'));
+
 		return /* html */`
 			<!DOCTYPE html>
 			<html lang="en">
@@ -40,11 +43,16 @@ export class ClassicEditorProvider implements vscode.CustomTextEditorProvider {
 				<title>Markdown Editor</title>
 			</head>
 			<body>
-            <div id="editor">
-                <p>Editor content goes here.</p>
-            </div>
+            <div id="editor">${document.getText()}</div>
 
-                <script src="ckeditor.js"></script>
+                <script src="${scriptUri}"></script>
+				<script>
+					ClassicEditor
+						.create( document.querySelector( '#editor' ) )
+						.catch( error => {
+							console.error( error );
+						} );
+				</script>
 			</body>
 			</html>`;
 	}
