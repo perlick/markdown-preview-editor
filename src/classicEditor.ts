@@ -30,6 +30,8 @@ export class ClassicEditorProvider implements vscode.CustomTextEditorProvider {
 			switch (e.type) {
 				case 'data.change':
 					console.log("vcode received message");
+					console.log(e.data);
+					this.updateTextDocument(document, e.data);
 					return;
 			}
 		});
@@ -63,7 +65,8 @@ export class ClassicEditorProvider implements vscode.CustomTextEditorProvider {
 							editor.model.document.on( 'change:data', () => {
 								console.log( 'The data has changed!' );
 								vscode.postMessage({
-									type: 'data.change'
+									type: 'data.change',
+									data: editor.getData()
 								});
 							} );
 						} )
@@ -73,5 +76,17 @@ export class ClassicEditorProvider implements vscode.CustomTextEditorProvider {
 				</script>
 			</body>
 			</html>`;
+	}
+
+	private updateTextDocument(document: vscode.TextDocument, md: any) {
+		const edit = new vscode.WorkspaceEdit();
+
+		// todo: compute minimal edits
+		edit.replace(
+			document.uri,
+			new vscode.Range(0, 0, document.lineCount, 0),
+			md);
+
+		return vscode.workspace.applyEdit(edit);
 	}
 }
