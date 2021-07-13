@@ -26,11 +26,38 @@ export class ClassicEditorProvider implements vscode.CustomTextEditorProvider {
 		};
 		webviewPanel.webview.html = this.getHtmlForWebview(webviewPanel.webview, document);
 
+		function updateWebview() {
+			webviewPanel.webview.postMessage({
+				type: 'update',
+				text: document.getText(),
+			});
+		}
+
+		// Hook up event handlers so that we can synchronize the webview with the text document.
+		//
+		// The text document acts as our model, so we have to sync change in the document to our
+		// editor and sync changes in the editor back to the document.
+		// 
+		// Remember that a single text document can also be shared between multiple custom
+		// editors (this happens for example when you split a custom editor)
+
+		const changeDocumentSubscription = vscode.workspace.onDidChangeTextDocument(e => {
+			if (e.document.uri.toString() === document.uri.toString()) {
+				console.log("vscode txt doc changed");
+				updateWebview();
+			}
+		});
+
+		// Make sure we get rid of the listener when our editor is closed.
+		webviewPanel.onDidDispose(() => {
+			changeDocumentSubscription.dispose();
+		});
+
+
 		webviewPanel.webview.onDidReceiveMessage(e => {
 			switch (e.type) {
 				case 'data.change':
-					console.log("vcode received message");
-					console.log(e.data);
+					console.log("vcode received data change message");
 					this.updateTextDocument(document, e.data);
 					return;
 			}
@@ -57,18 +84,46 @@ export class ClassicEditorProvider implements vscode.CustomTextEditorProvider {
 
                 <script src="${scriptUri}"></script>
 				<script>
+				// todo: move this stuff out to a separate script like vscode custom editor example /media directory
 					const vscode = acquireVsCodeApi();
 					
 					ClassicEditor
 						.create( document.querySelector( '#editor' ) )
 						.then( editor => {
-							editor.model.document.on( 'change:data', () => {
-								console.log( 'The data has changed!' );
-								vscode.postMessage({
-									type: 'data.change',
-									data: editor.getData()
-								});
+							editor.model.document.on( 'change:data', (ei, b) => {
+
+								console.log( 'webview data change' );
+								console.log(ei);
+								console.log(b);
+								if(b.type === 'default'){
+									vscode.postMessage({
+										type: 'data.change',
+										data: editor.getData()
+									});
+								}
 							} );
+
+							// Handle messages sent from the extension to the webview
+							window.addEventListener('message', event => {
+								const message = event.data; // The data that the extension sent
+								switch (message.type) {
+									case 'update':
+										console.log("webview received update notification")
+										const text = message.text;
+
+										// Update our webview's content
+										updateContent(text);
+
+										return;
+								}
+							});
+
+							/**
+							 * Render the document in the webview.
+							 */
+							function updateContent(/** @type {string} */ text) {
+								editor.setData(text);
+							}
 						} )
 						.catch( error => {
 							console.error( error );
