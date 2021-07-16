@@ -42,6 +42,7 @@ export class ClassicEditorProvider implements vscode.CustomTextEditorProvider {
 		// editors (this happens for example when you split a custom editor)
 
 		const changeDocumentSubscription = vscode.workspace.onDidChangeTextDocument(e => {
+			// only update our webview if the change did not originate in our webview (we'll use webview.active to determine this)
 			if (!webviewPanel.active && e.document.uri.toString() === document.uri.toString()) {
 				console.log("vscode txt doc changed");
 				updateWebview();
@@ -70,6 +71,9 @@ export class ClassicEditorProvider implements vscode.CustomTextEditorProvider {
 	private getHtmlForWebview(webview: vscode.Webview, document: vscode.TextDocument): string {
 		const scriptUri = webview.asWebviewUri(vscode.Uri.joinPath(
 			this.context.extensionUri, 'node_modules', '@ckeditor', 'ckeditor5-build-classic', 'build',  'ckeditor.js'));
+		
+		const styleUri = webview.asWebviewUri(vscode.Uri.joinPath(
+			this.context.extensionUri, 'media', 'custom.css'));
 
 		return /* html */`
 			<!DOCTYPE html>
@@ -83,6 +87,7 @@ export class ClassicEditorProvider implements vscode.CustomTextEditorProvider {
             <div id="editor">${document.getText()}</div>
 
                 <script src="${scriptUri}"></script>
+				<link rel="stylesheet" href="${styleUri}">
 				<script>
 				// todo: move this stuff out to a separate script like vscode custom editor example /media directory
 					const vscode = acquireVsCodeApi();
