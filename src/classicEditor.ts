@@ -42,7 +42,7 @@ export class ClassicEditorProvider implements vscode.CustomTextEditorProvider {
 		// editors (this happens for example when you split a custom editor)
 
 		const changeDocumentSubscription = vscode.workspace.onDidChangeTextDocument(e => {
-			if (e.document.uri.toString() === document.uri.toString()) {
+			if (!webviewPanel.active && e.document.uri.toString() === document.uri.toString()) {
 				console.log("vscode txt doc changed");
 				updateWebview();
 			}
