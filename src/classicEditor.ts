@@ -100,12 +100,10 @@ export class ClassicEditorProvider implements vscode.CustomTextEditorProvider {
 								console.log( 'webview data change' );
 								console.log(ei);
 								console.log(b);
-								if(b.type === 'default'){
-									vscode.postMessage({
-										type: 'data.change',
-										data: editor.getData()
-									});
-								}
+								vscode.postMessage({
+									type: 'data.change',
+									data: editor.getData()
+								});
 							} );
 
 							// Handle messages sent from the extension to the webview
