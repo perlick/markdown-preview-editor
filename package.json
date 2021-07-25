@@ -8,8 +8,20 @@
     "vscode": "^1.57.0"
   },
   "categories": [
+    "Programming Languages",
+    "Formatters",
     "Other"
   ],
+  "keywords": [
+    "markdown",
+    "WYSIWYG",
+    "editor"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/perlick/markdown-preview-editor"
+  },
+  "license": "MIT",
   "activationEvents": [
     "onCustomEditor:markdown-preview-editor.classicEditor"
   ],
