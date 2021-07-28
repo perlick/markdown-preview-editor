@@ -70,7 +70,7 @@ export class ClassicEditorProvider implements vscode.CustomTextEditorProvider {
 	 */
 	private getHtmlForWebview(webview: vscode.Webview, document: vscode.TextDocument): string {
 		const scriptUri = webview.asWebviewUri(vscode.Uri.joinPath(
-			this.context.extensionUri, 'node_modules', '@ckeditor', 'ckeditor5-build-classic', 'build',  'ckeditor.js'));
+			this.context.extensionUri, 'node_modules', 'ckeditor5-build-vsce', 'build',  'ckeditor.js'));
 		
 		const styleUri = webview.asWebviewUri(vscode.Uri.joinPath(
 			this.context.extensionUri, 'media', 'custom.css'));

@@ -62,6 +62,6 @@
     "vscode-test": "^1.5.2"
   },
   "dependencies": {
-    "@ckeditor/ckeditor5-build-classic": "file:../ckeditor5/packages/ckeditor5-build-classic"
+    "ckeditor5-build-vsce": "^29.0.0"
   }
 }
