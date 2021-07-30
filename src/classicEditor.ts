@@ -26,10 +26,13 @@ export class ClassicEditorProvider implements vscode.CustomTextEditorProvider {
 		};
 		webviewPanel.webview.html = this.getHtmlForWebview(webviewPanel.webview, document);
 
-		function updateWebview() {
+		var one = false;
+		function updateWebview(webview: vscode.Webview) {
+			const imageUri = webview.asWebviewUri(vscode.Uri.file(
+				"/home/matt/MEGA/Notes/Matthew's Notebook/Projects/markdown-wysiwyg-vsce/16.jpg"));
 			webviewPanel.webview.postMessage({
 				type: 'update',
-				text: document.getText(),
+				text: document.getText() + "![](" + imageUri + ")",
 			});
 		}
 
@@ -45,7 +48,7 @@ export class ClassicEditorProvider implements vscode.CustomTextEditorProvider {
 			// only update our webview if the change did not originate in our webview (we'll use webview.active to determine this)
 			if (!webviewPanel.active && e.document.uri.toString() === document.uri.toString()) {
 				console.log("vscode txt doc changed");
-				updateWebview();
+				updateWebview(webviewPanel.webview);
 			}
 		});
 
@@ -112,6 +115,7 @@ export class ClassicEditorProvider implements vscode.CustomTextEditorProvider {
 								switch (message.type) {
 									case 'update':
 										console.log("webview received update notification")
+										console.log("Text: " + message.text)
 										const text = message.text;
 
 										// Update our webview's content
