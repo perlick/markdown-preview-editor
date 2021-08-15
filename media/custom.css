@@ -15,7 +15,7 @@
 
     --ck-color-base-foreground: var(--ck-custom-background);
     --ck-color-base-background: none;
-    --ck-color-base-border: transparent;
+    --ck-color-base-border: #414649;
     --ck-color-focus-border: transparent;
     --ck-color-text: hsl(0, 0%, 98%);
     --ck-color-shadow-drop: hsla(0, 0%, 0%, 0.2);
