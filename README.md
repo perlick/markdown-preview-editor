@@ -12,6 +12,10 @@ Adds a WYSIWYG markdown editor. Edit markdown documents in rendered form.
 
 ## Release Notes
 
+### 0.03
+
+*   Fixed annoying switching-tabs-reverts-changes bug.  
+
 ### 0.0.2
 
 *   Added some common packages (code blocks, inline code snippets, etc.)
