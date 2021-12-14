@@ -21,6 +21,7 @@ export class ClassicEditorProvider implements vscode.CustomTextEditorProvider {
 		_token: vscode.CancellationToken
 	): Promise<void> {
 		// Setup initial content for the webview
+		console.log("resolve triggered");
 		webviewPanel.webview.options = {
 			enableScripts: true,
 		};
@@ -69,6 +70,7 @@ export class ClassicEditorProvider implements vscode.CustomTextEditorProvider {
 	 * Get the static html used for the editor webviews.
 	 */
 	private getHtmlForWebview(webview: vscode.Webview, document: vscode.TextDocument): string {
+		console.log("get HTML triggered");
 		const scriptUri = webview.asWebviewUri(vscode.Uri.joinPath(
 			this.context.extensionUri, 'node_modules', 'ckeditor5-build-vsce', 'build',  'ckeditor.js'));
 		
@@ -100,10 +102,14 @@ export class ClassicEditorProvider implements vscode.CustomTextEditorProvider {
 								console.log( 'webview data change' );
 								console.log(ei);
 								console.log(b);
-								vscode.postMessage({
-									type: 'data.change',
-									data: editor.getData()
-								});
+								if(b.type !== "transparent"){
+									vscode.postMessage({
+										type: 'data.change',
+										data: editor.getData()
+									});
+									text = editor.getData();
+									vscode.setState({ text });
+								}
 							} );
 
 							// Handle messages sent from the extension to the webview
@@ -117,6 +123,8 @@ export class ClassicEditorProvider implements vscode.CustomTextEditorProvider {
 										// Update our webview's content
 										updateContent(text);
 
+										vscode.setState({ text });
+
 										return;
 								}
 							});
@@ -125,7 +133,17 @@ export class ClassicEditorProvider implements vscode.CustomTextEditorProvider {
 							 * Render the document in the webview.
 							 */
 							function updateContent(/** @type {string} */ text) {
+								console.log('webview received content update');
+								console.log(text)
 								editor.setData(text);
+							}
+
+							// Webviews are normally torn down when not visible and re-created when they become visible again.
+							// State lets us save information across these re-loads
+							const state = vscode.getState();
+							if (state) {
+								updateContent(state.text);
+								console.log(state.text);
 							}
 						} )
 						.catch( error => {
